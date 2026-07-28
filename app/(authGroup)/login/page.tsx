@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
 const LoginPage = () => {
   return (
-    <div className="mx-auto flex min-h-svh max-w-sm flex-col justify-center px-4">
+    <div className="mx-auto flex min-h-[calc(100svh-4rem)] max-w-sm flex-col justify-center px-4">
   <Card className="shadow-sm">
     <CardHeader>
       <h1 className="text-2xl text-center font-semibold">Welcome back</h1>

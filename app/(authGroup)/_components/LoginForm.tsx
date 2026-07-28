@@ -1,18 +1,35 @@
 "use client";
- 
-import { useState } from "react";
+
+import { useActionState, useEffect, useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
- 
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { loginAction } from "../_actions/authActions";
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 
 const LoginForm = () => {
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [state, action, pending] = useActionState(loginAction, false);
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (state.success) {
+      toast.success(state.message || "Login successful");
+    }
+
+    if (!state.success) {
+      toast.error(state.message || "Login failed");
+    }
+  }, [state]);
+
   return (
-    <form action="" className="mt-6 flex flex-col gap-5">
-      
+    <form action={action} className="mt-6 flex flex-col gap-5">
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative">
@@ -62,7 +79,7 @@ const LoginForm = () => {
 
       {/* Submit */}
       <Button type="submit" className="mt-1 w-full">
-        Log In
+        {pending ? <Spinner className="mr-2 h-4 w-4" /> : "Login"}
       </Button>
     </form>
   );
