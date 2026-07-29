@@ -27,15 +27,14 @@ const formatDate = (iso: string) =>
 const getProviderAction = (
   order: IRentalOrder,
 ): { label: string; nextStatus: TOrderStatus } | null => {
-  switch (order.status) {
-    case "PLACED":
-      return { label: "Confirm", nextStatus: "CONFIRMED" };
-    case "PAID":
-      return { label: "Mark Picked Up", nextStatus: "PICKED_UP" };
-    case "PICKED_UP":
-      return { label: "Mark Returned", nextStatus: "RETURNED" };
-    default:
-      return null;
+  if (order.status === "PLACED") {
+    return { label: "Confirm", nextStatus: "CONFIRMED" };
+  } else if (order.status === "PAID") {
+    return { label: "Mark Picked Up", nextStatus: "PICKED_UP" };
+  } else if (order.status === "PICKED_UP") {
+    return { label: "Mark Returned", nextStatus: "RETURNED" };
+  } else {
+    return null;
   }
 };
 
@@ -91,7 +90,7 @@ export function OrderTable({ orders }: { orders: IRentalOrder[] }) {
                   {formatDate(order.startTime)}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                 {formatDate(order.endTime)}
+                  {formatDate(order.endTime)}
                 </TableCell>
                 <TableCell>{order.quantity}</TableCell>
                 <TableCell>${order.totalPrice}</TableCell>
