@@ -186,3 +186,10 @@ export type TGearError = {
 };
 
 export type GearFormState = TGearSuccess | TGearError | null;
+
+export interface IPaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
