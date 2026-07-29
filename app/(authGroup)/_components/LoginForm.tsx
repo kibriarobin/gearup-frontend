@@ -1,95 +1,58 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import React from "react";
-import { loginAction } from "../_actions/authActions";
-import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
+import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 
-const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { loginAction } from "../_actions/authActions";
 
+export function LoginForm() {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "";
+  const redirectTo = searchParams.get("redirectTo") || "";
 
+  const loginActionWithRedirect = loginAction.bind(null, redirectTo);
   const [state, action, pending] = useActionState(
-    loginAction.bind(null, redirectTo),
-    false,
+    loginActionWithRedirect,
+    null,
   );
 
-  useEffect(() => {
-    if (!state) return;
-
-    if (state.success) {
-      toast.success(state.message || "Login successful");
-    }
-
-    if (!state.success) {
-      toast.error(state.message || "Login failed");
-    }
-  }, [state]);
+  const fieldErrors = state && !state.success ? state.errors : undefined;
 
   return (
-    <form action={action} className="mt-6 flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
+    <form action={action} className="flex flex-col gap-4">
+      <div className="grid gap-1.5">
         <Label htmlFor="email">Email</Label>
-        <div className="relative">
-          <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            className="pl-9"
-            required
-          />
-        </div>
-        {/* TODO: inline Zod error message goes here */}
+        <Input id="email" name="email" type="email" placeholder="Enter your email" required />
+        {fieldErrors?.email && (
+          <p className="text-sm text-destructive">{fieldErrors.email[0]}</p>
+        )}
       </div>
 
-      {/* Password */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
-          {/* Kept here since it's tightly bound to this field; move it out
-              to the page if you'd rather group all links there. */}
-        </div>
-        <div className="relative">
-          <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
-            className="pl-9 pr-9"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? (
-              <EyeOff className="size-4" />
-            ) : (
-              <Eye className="size-4" />
-            )}
-          </button>
-        </div>
-        {/* TODO: inline Zod error message goes here */}
+      <div className="grid gap-1.5">
+        <Label htmlFor="password">Password</Label>
+        <Input id="password" name="password" type="password" placeholder="Enter your password" required />
+        {fieldErrors?.password && (
+          <p className="text-sm text-destructive">{fieldErrors.password[0]}</p>
+        )}
       </div>
 
-      {/* Submit */}
-      <Button type="submit" className="mt-1 w-full">
-        {pending ? <Spinner className="mr-2 h-4 w-4" /> : "Login"}
+      {state && !state.success && !fieldErrors && (
+        <p className="text-sm text-destructive">{state.message}</p>
+      )}
+
+      <Button type="submit" className="mt-1 w-full" disabled={pending}>
+        {pending ? (
+          <>
+            <Spinner className="mr-2 h-4 w-4" />
+            Logging...
+          </>
+        ) : (
+          "Login"
+        )}
       </Button>
     </form>
   );
-};
-
-export default LoginForm;
+}

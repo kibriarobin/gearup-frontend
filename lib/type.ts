@@ -47,8 +47,10 @@ export interface NavbarProps {
   user: TGetMeResponse | IAuthError;
 }
 
-export type LoginState = {
-  success: boolean;
+// login
+
+export type TLoginSuccess = {
+  success: true;
   statusCode: number;
   message: string;
   data: {
@@ -56,3 +58,45 @@ export type LoginState = {
     refreshToken: string;
   };
 };
+
+export type TLoginFieldErrors = {
+  email?: string[];
+  password?: string[];
+};
+
+export type TLoginError = {
+  success: false;
+  message: string;
+  errors?: TLoginFieldErrors;
+};
+
+export type LoginState = TLoginSuccess | TLoginError | null;
+
+// Register
+
+export type TRegisterRole = "CUSTOMER" | "PROVIDER";
+
+export type TRegisterSuccess = {
+  success: true;
+  statusCode: number;
+  message: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+};
+
+export type TRegisterFieldErrors = {
+  name?: string[];
+  email?: string[];
+  phone?: string[];
+  password?: string[];
+};
+
+export type TRegisterError = {
+  success: false;
+  message: string;
+  errors?: TRegisterFieldErrors;
+};
+
+export type RegisterState = TRegisterSuccess | TRegisterError | null;
