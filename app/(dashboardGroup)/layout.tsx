@@ -14,7 +14,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     <div>
       <Navbar user={user} />
       <div className="mx-auto flex max-w-7xl">
-        <DashboardSidebar />
+        <DashboardSidebar role={user.data.profile.role}/>
         <main className="min-h-[calc(100vh-4rem)] flex-1 p-6">{children}</main>
       </div>
     </div>

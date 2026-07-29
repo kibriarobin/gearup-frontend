@@ -4,15 +4,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { providerSidebarItems } from "../_config/sidebarMenuItems";
+import { adminSidebarItems, customerSidebarItems, providerSidebarItems } from "../_config/sidebarMenuItems";
+import { TRole } from "@/lib/type";
 
-export function DashboardSidebar() {
+const getSidebarItems = (role: TRole) => {
+  if (role === "ADMIN") {
+    return adminSidebarItems;
+  } else if (role === "PROVIDER") {
+    return providerSidebarItems;
+  } else if (role === "CUSTOMER") {
+    return customerSidebarItems;
+  } else {
+    return [];
+  }
+};
+
+export function DashboardSidebar({ role }: { role: TRole }) {
   const pathname = usePathname();
+   const items = getSidebarItems(role);
 
   return (
     <aside className="hidden w-56 shrink-0 border-r bg-background md:block">
       <nav className="flex flex-col gap-1 p-4">
-        {providerSidebarItems.map((item) => {
+        {items.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
