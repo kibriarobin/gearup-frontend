@@ -100,3 +100,50 @@ export type TRegisterError = {
 };
 
 export type RegisterState = TRegisterSuccess | TRegisterError | null;
+
+// Gear
+
+export interface ICategory {
+  id: string;
+  name: string;
+}
+
+export interface IGearItem {
+  id: string;
+  name: string;
+  description: string;
+  pricePerDay: number;
+  brand: string;
+  model: string;
+  totalStock: number;
+  availableCount: number;
+  categoryId: string;
+  providerId: string;
+  category?: ICategory;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+// Rental Orders
+
+export type TOrderStatus =
+  | "PLACED"
+  | "CONFIRMED"
+  | "PAID"
+  | "PICKED_UP"
+  | "RETURNED"
+  | "CANCELLED";
+
+export interface IRentalOrder {
+  id: string;
+  customerId: string;
+  gearId: string;
+  startTime: string;
+  endTime: string;
+  quantity: number;
+  totalPrice: number;
+  status: TOrderStatus;
+  createdAt: string;
+  gear?: IGearItem;
+  customer?: { id: string; name: string; email: string };
+}
