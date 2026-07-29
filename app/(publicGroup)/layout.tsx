@@ -1,11 +1,13 @@
 import { Navbar } from "@/components/navbar/Navbar";
+import { getMe } from "@/service/getMe";
 import React from "react";
 
-const PublicLayout = ({ children }: { children: React.ReactNode }) => {
+const PublicLayout = async ({ children }: { children: React.ReactNode }) => {
+  const user = await getMe();
   return (
     <div>
-      <Navbar></Navbar>
-      <div className="mx-auto max-w-7xl px-4">{children}</div>
+      <Navbar user={user}></Navbar>
+      <div>{children}</div>
     </div>
   );
 };
