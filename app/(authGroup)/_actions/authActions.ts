@@ -2,8 +2,11 @@
 
 import { LoginState } from "@/lib/type";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const loginAction = async (
+  redirectTo: string,
   prevState: LoginState,
   formData: FormData,
 ) => {
@@ -41,6 +44,25 @@ export const loginAction = async (
       maxAge: 60 * 60 * 24 * 7,
       sameSite: "lax",
     });
+
+    const decodedToken = jwt.decode(result.data.accessToken) as JwtPayload;
+
+    if (
+      redirectTo &&
+      typeof redirectTo === "string" &&
+      redirectTo.startsWith("/") &&
+      !redirectTo.startsWith("//")
+    ) {
+      redirect(redirectTo);
+    }
+
+    if (decodedToken.role === "CUSTOMER") {
+      redirect("/customer-dashboard");
+    } else if (decodedToken.role === "ADMIN") {
+      redirect("/admin-dashboard");
+    } else if (decodedToken.role === "PROVIDER") {
+      redirect("/provider-dashboard");
+    }
   }
 
   return result;
