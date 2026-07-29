@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { IPaginationMeta, IUser} from "@/lib/type";
+import { IGearItem, IPaginationMeta, IUser} from "@/lib/type";
 
 const authHeader = async () => {
   const cookieStore = await cookies();
@@ -63,4 +63,27 @@ export const updateUserStatus = async (
   );
 
   return res.json();
+};
+
+export const getAllGearAdmin = async (): Promise<{
+  success: boolean;
+  message: string;
+  data: IGearItem[];
+  total: number;
+}> => {
+  const headers = await authHeader();
+
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/gears`, {
+    headers,
+    cache: "no-store",
+  });
+
+  const result = await res.json();
+
+  return {
+    success: result.success,
+    message: result.message,
+    data: result.data ?? [],
+    total: result.meta?.total ?? (result.data?.length ?? 0),
+  };
 };
