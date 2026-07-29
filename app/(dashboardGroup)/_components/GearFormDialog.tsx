@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { useActionState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -27,21 +25,9 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 
-import { createGear, updateGear } from "../_actions/gearActions";
+import { gearAction } from "../_actions/gearActions";
+import { IGearItem, GearFormState } from "@/lib/type";
 import { getCategories } from "../_actions/categoryAction";
-import { IGearItem } from "@/lib/type";
-
-const gearSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  pricePerDay: z.coerce.number().positive("Price must be greater than 0"),
-  brand: z.string().min(1, "Brand is required"),
-  model: z.string().min(1, "Model is required"),
-  totalStock: z.coerce.number().int().positive("Stock must be at least 1"),
-  categoryId: z.string().min(1, "Select a category"),
-});
-
-type GearFormValues = z.infer<typeof gearSchema>;
 
 type GearFormDialogProps = {
   open: boolean;
@@ -56,69 +42,33 @@ export function GearFormDialog({
 }: GearFormDialogProps) {
   const isEditMode = !!initialData;
   const queryClient = useQueryClient();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
   });
 
-  const form = useForm<GearFormValues>({
-    resolver: zodResolver(gearSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      pricePerDay: 0,
-      brand: "",
-      model: "",
-      totalStock: 1,
-      categoryId: "",
-    },
-  });
+  const gearActionWithId = (prevState: GearFormState, formData: FormData) =>
+    gearAction(initialData?.id ?? null, prevState, formData);
+
+  const [state, action, pending] = useActionState(gearActionWithId, null);
+
+  const fieldErrors = state && !state.success ? state.errors : undefined;
 
   useEffect(() => {
-    if (open && initialData) {
-      form.reset({
-        name: initialData.name,
-        description: initialData.description,
-        pricePerDay: initialData.pricePerDay,
-        brand: initialData.brand,
-        model: initialData.model,
-        totalStock: initialData.totalStock,
-        categoryId: initialData.categoryId,
-      });
-    } else if (open && !initialData) {
-      form.reset({
-        name: "",
-        description: "",
-        pricePerDay: 0,
-        brand: "",
-        model: "",
-        totalStock: 1,
-        categoryId: "",
-      });
+    if (open) {
+      formRef.current?.reset();
     }
-  }, [open, initialData, form]);
+  }, [open, initialData]);
 
-  const mutation = useMutation({
-    mutationFn: (values: GearFormValues) =>
-      isEditMode ? updateGear(initialData!.id, values) : createGear(values),
-    onSuccess: (result) => {
-      if (result.success) {
-        toast.success(isEditMode ? "Gear updated successfully" : "Gear added successfully");
-        queryClient.invalidateQueries({ queryKey: ["my-gear"] });
-        onOpenChange(false);
-      } else {
-        toast.error(result.message || "Something went wrong");
-      }
-    },
-    onError: () => {
-      toast.error("Something went wrong, please try again");
-    },
-  });
-
-  const onSubmit = (values: GearFormValues) => {
-    mutation.mutate(values);
-  };
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.message);
+      queryClient.invalidateQueries({ queryKey: ["my-gear"] });
+      onOpenChange(false);
+    }
+  }, [state, queryClient, onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -127,14 +77,17 @@ export function GearFormDialog({
           <DialogTitle>{isEditMode ? "Edit Gear" : "Add New Gear"}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form ref={formRef} action={action} className="flex flex-col gap-4">
           <div className="grid gap-1.5">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" {...form.register("name")} placeholder="Life Jacket - Adult Size" />
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.name.message}
-              </p>
+            <Input
+              id="name"
+              name="name"
+              defaultValue={initialData?.name}
+              placeholder="Gear title"
+            />
+            {fieldErrors?.name && (
+              <p className="text-sm text-destructive">{fieldErrors.name[0]}</p>
             )}
           </div>
 
@@ -142,13 +95,14 @@ export function GearFormDialog({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              {...form.register("description")}
-              placeholder="Coast guard approved life vest for water activities"
+              name="description"
+              defaultValue={initialData?.description}
+              placeholder="Gear description"
               rows={3}
             />
-            {form.formState.errors.description && (
+            {fieldErrors?.description && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.description.message}
+                {fieldErrors.description[0]}
               </p>
             )}
           </div>
@@ -156,20 +110,30 @@ export function GearFormDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="brand">Brand</Label>
-              <Input id="brand" {...form.register("brand")} placeholder="Stohlquist" />
-              {form.formState.errors.brand && (
+              <Input
+                id="brand"
+                name="brand"
+                defaultValue={initialData?.brand}
+                placeholder="Brand"
+              />
+              {fieldErrors?.brand && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.brand.message}
+                  {fieldErrors.brand[0]}
                 </p>
               )}
             </div>
 
             <div className="grid gap-1.5">
               <Label htmlFor="model">Model</Label>
-              <Input id="model" {...form.register("model")} placeholder="Fit Adult" />
-              {form.formState.errors.model && (
+              <Input
+                id="model"
+                name="model"
+                defaultValue={initialData?.model}
+                placeholder="Model"
+              />
+              {fieldErrors?.model && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.model.message}
+                  {fieldErrors.model[0]}
                 </p>
               )}
             </div>
@@ -180,23 +144,29 @@ export function GearFormDialog({
               <Label htmlFor="pricePerDay">Price / day</Label>
               <Input
                 id="pricePerDay"
+                name="pricePerDay"
                 type="number"
                 step="0.01"
-                {...form.register("pricePerDay")}
+                defaultValue={initialData?.pricePerDay}
               />
-              {form.formState.errors.pricePerDay && (
+              {fieldErrors?.pricePerDay && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.pricePerDay.message}
+                  {fieldErrors.pricePerDay[0]}
                 </p>
               )}
             </div>
 
             <div className="grid gap-1.5">
               <Label htmlFor="totalStock">Total stock</Label>
-              <Input id="totalStock" type="number" {...form.register("totalStock")} />
-              {form.formState.errors.totalStock && (
+              <Input
+                id="totalStock"
+                name="totalStock"
+                type="number"
+                defaultValue={initialData?.totalStock}
+              />
+              {fieldErrors?.totalStock && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.totalStock.message}
+                  {fieldErrors.totalStock[0]}
                 </p>
               )}
             </div>
@@ -204,10 +174,7 @@ export function GearFormDialog({
 
           <div className="grid gap-1.5">
             <Label htmlFor="categoryId">Category</Label>
-            <Select
-              onValueChange={(value) => form.setValue("categoryId", value, { shouldValidate: true })}
-              value={form.watch("categoryId")}
-            >
+            <Select name="categoryId" defaultValue={initialData?.categoryId}>
               <SelectTrigger id="categoryId">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -219,16 +186,20 @@ export function GearFormDialog({
                 ))}
               </SelectContent>
             </Select>
-            {form.formState.errors.categoryId && (
+            {fieldErrors?.categoryId && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.categoryId.message}
+                {fieldErrors.categoryId[0]}
               </p>
             )}
           </div>
 
+          {state && !state.success && !fieldErrors && (
+            <p className="text-sm text-destructive">{state.message}</p>
+          )}
+
           <DialogFooter>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? (
+            <Button type="submit" disabled={pending}>
+              {pending ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4" />
                   Saving...

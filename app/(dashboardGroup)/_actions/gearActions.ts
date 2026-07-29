@@ -1,8 +1,19 @@
-"use server"
+"use server";
 
-import { IGearItem } from "@/lib/type";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { z } from "zod";
+import { IGearItem, GearFormState } from "@/lib/type";
+
+const gearSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  pricePerDay: z.coerce.number().positive("Price must be greater than 0"),
+  brand: z.string().min(1, "Brand is required"),
+  model: z.string().min(1, "Model is required"),
+  totalStock: z.coerce.number().int().positive("Stock must be at least 1"),
+  categoryId: z.string().min(1, "Select a category"),
+});
 
 export const getMyGear = async (): Promise<{
   success: boolean;
@@ -18,61 +29,76 @@ export const getMyGear = async (): Promise<{
 
   const decoded = jwt.decode(accessToken) as JwtPayload;
 
-  const res = await fetch(
-    `${process.env.BACKEND_API_URL}/api/gear?limit=100`,
-    {
-      headers: { Cookie: `accessToken=${accessToken}` },
-      cache: "no-store",
-    },
-  );
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear?limit=100`, {
+    headers: { Cookie: `accessToken=${accessToken}` },
+    cache: "no-store",
+  });
 
   const result = await res.json();
-
   const allGear: IGearItem[] = result.data ?? [];
-
   const myGear = allGear.filter((item) => item.providerId === decoded.id);
 
   return { success: true, message: "Fetched", data: myGear };
 };
 
-export const createGear = async (payload: {
-  name: string;
-  description: string;
-  pricePerDay: number;
-  brand: string;
-  model: string;
-  totalStock: number;
-  categoryId: string;
-}) => {
+export const gearAction = async (
+  gearId: string | null,
+  prevState: GearFormState,
+  formData: FormData,
+): Promise<GearFormState> => {
+  const data = {
+    name: formData.get("name"),
+    description: formData.get("description"),
+    pricePerDay: formData.get("pricePerDay"),
+    brand: formData.get("brand"),
+    model: formData.get("model"),
+    totalStock: formData.get("totalStock"),
+    categoryId: formData.get("categoryId"),
+  };
+
+  const validated = gearSchema.safeParse(data);
+
+  if (!validated.success) {
+    return {
+      success: false,
+      message: "Please fix the errors below",
+      errors: validated.error.flatten().fieldErrors,
+    };
+  }
+
+
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear`, {
-    method: "POST",
+
+  const url = gearId
+    ? `${process.env.BACKEND_API_URL}/api/gear/${gearId}`
+    : `${process.env.BACKEND_API_URL}/api/gear`;
+
+  const res = await fetch(url, {
+    method: gearId ? "PATCH" : "POST",
     headers: {
       "Content-Type": "application/json",
       Cookie: `accessToken=${accessToken}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(validated.data),
   });
+  
 
-  return res.json();
-};
+  const result = await res.json();
 
-export const updateGear = async (id: string, payload: Partial<IGearItem>) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  if (!result.success) {
+    return {
+      success: false,
+      message: result.message || "Something went wrong",
+    };
+  }
 
-  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: `accessToken=${accessToken}`,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  return res.json();
+  return {
+    success: true,
+    message: gearId ? "Gear updated successfully" : "Gear added successfully",
+    data: result.data,
+  };
 };
 
 export const deleteGear = async (id: string) => {

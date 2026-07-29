@@ -162,3 +162,27 @@ export type TGearFormValues = {
   totalStock: number;
   categoryId: string;
 };
+
+export type TGearFieldErrors = {
+  name?: string[];
+  description?: string[];
+  pricePerDay?: string[];
+  brand?: string[];
+  model?: string[];
+  totalStock?: string[];
+  categoryId?: string[];
+};
+
+export type TGearSuccess = {
+  success: true;
+  message: string;
+  data: IGearItem;
+};
+
+export type TGearError = {
+  success: false;
+  message: string;
+  errors?: TGearFieldErrors;
+};
+
+export type GearFormState = TGearSuccess | TGearError | null;
