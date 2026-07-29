@@ -119,9 +119,13 @@ export interface IGearItem {
   availableCount: number;
   categoryId: string;
   providerId: string;
-  category?: ICategory;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
+  category?: ICategory;
+  provider?: {
+    name: string;
+    email: string;
+  };
 }
 
 // Rental Orders
