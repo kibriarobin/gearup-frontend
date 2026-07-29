@@ -80,7 +80,7 @@ export function Navbar({ user }: NavbarProps) {
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4">
-        {/* Left: logo */}
+        
         <Link href="/" className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-md bg-primary">
             <Compass className="size-5 text-primary-foreground" />
@@ -90,7 +90,7 @@ export function Navbar({ user }: NavbarProps) {
           </span>
         </Link>
 
-        {/* Center: inline nav links, desktop only */}
+        
         <nav className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) => (
             <Button key={item.href} variant="ghost" size="sm" asChild>
@@ -137,6 +137,7 @@ export function Navbar({ user }: NavbarProps) {
                     <DropdownMenuItem
                       key={item.action}
                       onClick={() => handleUserMenuAction(item.action)}
+                      className="focus:bg-primary focus:text-primary-foreground"
                     >
                       <item.icon data-icon="inline-start" />
                       {item.label}
@@ -148,6 +149,7 @@ export function Navbar({ user }: NavbarProps) {
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => handleUserMenuAction("logout")}
+                    className="focus:bg-primary focus:text-primary-foreground"
                   >
                     <LogOut data-icon="inline-start" />
                     Log out
