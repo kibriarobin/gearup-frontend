@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
       </div>
 
       <Input
-        placeholder="Search by name or email..."
+        placeholder="Search user"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);

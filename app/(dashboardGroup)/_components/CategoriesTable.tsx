@@ -107,7 +107,7 @@ export default function CategoriesTable() {
       
       <div className="mb-6 flex gap-2">
         <Input
-          placeholder="e.g. Camping, Water Sports"
+          placeholder="Enter category name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className="max-w-xs"
