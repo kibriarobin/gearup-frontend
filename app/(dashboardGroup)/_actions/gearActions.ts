@@ -34,3 +34,55 @@ export const getMyGear = async (): Promise<{
 
   return { success: true, message: "Fetched", data: myGear };
 };
+
+export const createGear = async (payload: {
+  name: string;
+  description: string;
+  pricePerDay: number;
+  brand: string;
+  model: string;
+  totalStock: number;
+  categoryId: string;
+}) => {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `accessToken=${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return res.json();
+};
+
+export const updateGear = async (id: string, payload: Partial<IGearItem>) => {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `accessToken=${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return res.json();
+};
+
+export const deleteGear = async (id: string) => {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear/${id}`, {
+    method: "DELETE",
+    headers: { Cookie: `accessToken=${accessToken}` },
+  });
+
+  return res.json();
+};

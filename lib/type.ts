@@ -151,3 +151,14 @@ export interface IRentalOrder {
   gear?: IGearItem;
   customer?: { id: string; name: string; email: string };
 }
+
+// gear form
+export type TGearFormValues = {
+  name: string;
+  description: string;
+  pricePerDay: number;
+  brand: string;
+  model: string;
+  totalStock: number;
+  categoryId: string;
+};
