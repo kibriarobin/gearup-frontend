@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useActionState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Plus, X } from "lucide-react";
 
 import {
   Dialog,
@@ -44,23 +45,26 @@ export function GearFormDialog({
   const queryClient = useQueryClient();
   const formRef = useRef<HTMLFormElement>(null);
 
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    initialData?.images?.length ? initialData.images : [""],
+  );
+
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
   });
 
-  const gearActionWithId = (prevState: GearFormState, formData: FormData) =>
-    gearAction(initialData?.id ?? null, prevState, formData);
+  const gearActionWithId = (prevState: GearFormState, formData: FormData) => {
+    const validImages = imageUrls.filter((url) => url.trim() !== "");
+    formData.delete("images");
+    validImages.forEach((url) => formData.append("images", url));
+
+    return gearAction(initialData?.id ?? null, prevState, formData);
+  };
 
   const [state, action, pending] = useActionState(gearActionWithId, null);
 
   const fieldErrors = state && !state.success ? state.errors : undefined;
-
-  useEffect(() => {
-    if (open) {
-      formRef.current?.reset();
-    }
-  }, [open, initialData]);
 
   useEffect(() => {
     if (state?.success) {
@@ -70,9 +74,17 @@ export function GearFormDialog({
     }
   }, [state, queryClient, onOpenChange]);
 
+  const addImageField = () => setImageUrls((prev) => [...prev, ""]);
+
+  const removeImageField = (index: number) =>
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+
+  const updateImageField = (index: number, value: string) =>
+    setImageUrls((prev) => prev.map((url, i) => (i === index ? value : url)));
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Gear" : "Add New Gear"}</DialogTitle>
         </DialogHeader>
@@ -190,6 +202,42 @@ export function GearFormDialog({
               <p className="text-sm text-destructive">
                 {fieldErrors.categoryId[0]}
               </p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Image URLs</Label>
+            {imageUrls.map((url, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  placeholder="Image URL"
+                  value={url}
+                  onChange={(e) => updateImageField(index, e.target.value)}
+                />
+                {imageUrls.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeImageField(index)}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addImageField}
+              className="w-fit"
+            >
+              <Plus className="mr-1 size-3.5" />
+              Add another image
+            </Button>
+            {fieldErrors?.images && (
+              <p className="text-sm text-destructive">{fieldErrors.images[0]}</p>
             )}
           </div>
 

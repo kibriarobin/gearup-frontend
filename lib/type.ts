@@ -117,17 +117,29 @@ export interface IGearItem {
   model: string;
   totalStock: number;
   availableCount: number;
+  images: string[];
   categoryId: string;
   providerId: string;
   createdAt: string;
   updatedAt: string;
   category?: ICategory;
+  reviews?: IReview[];
   provider?: {
     name: string;
     email: string;
   };
 }
 
+export interface IReview {
+  id: string;
+  gearId: string;
+  customerId: string;
+  comment: string;
+  createdAt: string;
+  customer?: {
+    name: string;
+  };
+}
 // Rental Orders
 
 export type TOrderStatus =
@@ -171,6 +183,7 @@ export type TGearFieldErrors = {
   model?: string[];
   totalStock?: string[];
   categoryId?: string[];
+  images?: string[];
 };
 
 export type TGearSuccess = {

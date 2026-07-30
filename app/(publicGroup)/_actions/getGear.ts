@@ -45,3 +45,19 @@ export const getGear = async (
     meta: result.meta,
   };
 };
+
+export const getGearById = async (
+  id: string,
+): Promise<{ success: boolean; message: string; data: IGearItem | null }> => {
+  const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear/${id}`, {
+    cache: "no-store",
+  });
+
+  const result = await res.json();
+
+  return {
+    success: result.success,
+    message: result.message,
+    data: result.data ?? null,
+  };
+};

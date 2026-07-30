@@ -13,6 +13,7 @@ const gearSchema = z.object({
   model: z.string().min(1, "Model is required"),
   totalStock: z.coerce.number().int().positive("Stock must be at least 1"),
   categoryId: z.string().min(1, "Select a category"),
+  images: z.array(z.string().url("Must be a valid URL")).optional().default([]),
 });
 
 export const getMyGear = async (): Promise<{
@@ -54,6 +55,7 @@ export const gearAction = async (
     model: formData.get("model"),
     totalStock: formData.get("totalStock"),
     categoryId: formData.get("categoryId"),
+    images: formData.getAll("images"),
   };
 
   const validated = gearSchema.safeParse(data);
