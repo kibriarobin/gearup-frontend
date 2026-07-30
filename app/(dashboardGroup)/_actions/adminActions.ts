@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { IGearItem, IPaginationMeta, IRentalOrder, IUser} from "@/lib/type";
+import { IGearItem, IPaginationMeta, IRentalOrder, IUser } from "@/lib/type";
 
 const authHeader = async () => {
   const cookieStore = await cookies();
@@ -24,7 +24,7 @@ export const getAllUsers = async (params: {
   const query = new URLSearchParams();
   if (params.search) query.set("search", params.search);
   query.set("page", String(params.page ?? 1));
-  query.set("limit", String(params.limit ?? 10));
+  query.set("limit", String(params.limit ?? 4));
 
   const res = await fetch(
     `${process.env.BACKEND_API_URL}/api/admin/users?${query.toString()}`,
@@ -84,7 +84,7 @@ export const getAllGearAdmin = async (): Promise<{
     success: result.success,
     message: result.message,
     data: result.data ?? [],
-    total: result.meta?.total ?? (result.data?.length ?? 0),
+    total: result.meta?.total ?? result.data?.length ?? 0,
   };
 };
 
@@ -102,12 +102,11 @@ export const getAllRentalsAdmin = async (): Promise<{
   });
 
   const result = await res.json();
-  console.log("ADMIN RENTALS RESPONSE:", JSON.stringify(result, null, 2))
 
   return {
     success: result.success,
     message: result.message,
     data: result.data ?? [],
-    total: result.meta?.total ?? (result.data?.length ?? 0),
+    total: result.meta?.total ?? result.data?.length ?? 0,
   };
 };

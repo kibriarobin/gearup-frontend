@@ -1,4 +1,3 @@
-// (dashboardGroup)/_components/DashboardSidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -24,7 +23,7 @@ export function DashboardSidebar({ role }: { role: TRole }) {
    const items = getSidebarItems(role);
 
   return (
-    <aside className="hidden w-56 shrink-0 border-r bg-background md:block">
+    <aside className="w-56 shrink-0 border-r bg-background md:block">
       <nav className="flex flex-col gap-1 p-4">
         {items.map((item) => {
           const isActive = pathname === item.href;
