@@ -206,3 +206,16 @@ export interface IPaginationMeta {
   limit: number;
   totalPages: number;
 }
+
+export type TPaymentStatus = "PENDING" | "COMPLETED" | "FAILED";
+
+export interface IPayment {
+  id: string;
+  transactionId: string;
+  amount: number;
+  method: "SSLCOMMERZ";
+  status: TPaymentStatus;
+  paidAt: string | null;
+  rentalOrderId: string;
+  rentalOrder?: IRentalOrder;
+}

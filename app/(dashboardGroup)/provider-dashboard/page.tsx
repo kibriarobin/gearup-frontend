@@ -5,6 +5,7 @@ import { Package, ClipboardList, Clock } from "lucide-react";
 import { getMyGear } from "../_actions/gearActions";
 import { getProviderOrders } from "../_actions/orderActions";
 import { StatCard } from "../_components/StatCard";
+import { calculateProviderStats } from "../_utils/dashboardStats";
 
 export default function ProviderOverviewPage() {
   const { data: gearData, isLoading: gearLoading } = useQuery({
@@ -17,17 +18,12 @@ export default function ProviderOverviewPage() {
     queryFn: getProviderOrders,
   });
 
-  const totalGear = gearData?.data.length ?? 0;
-
-  const activeRentals =
-    ordersData?.data.filter((o) =>
-      ["PAID", "PICKED_UP"].includes(o.status),
-    ).length ?? 0;
-
-  const pendingOrders =
-    ordersData?.data.filter((o) => o.status === "PLACED").length ?? 0;
-
   const isLoading = gearLoading || ordersLoading;
+
+  const { totalGear, activeRentals, pendingOrders } = calculateProviderStats(
+    gearData?.data ?? [],
+    ordersData?.data ?? [],
+  );
 
   const stats = [
     { label: "Total Gear Listed", value: totalGear, icon: Package },
