@@ -3,7 +3,7 @@
 This document maps each frontend component/page to the backend API endpoint(s) it consumes.
 
 **Backend Base URL:** `https://gearup-server-mocha.vercel.app`
-**Backend Repo:** https://github.com/kibriarobin97/gearup-server
+**Backend Repo:** https://github.com/kibriarobin/gearup-server
 
 ---
 
