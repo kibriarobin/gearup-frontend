@@ -9,6 +9,20 @@ type StatCardProps = {
 };
 
 export function StatCard({ label, value, icon: Icon, isLoading }: StatCardProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="size-4 rounded-full" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-8 w-16" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -18,11 +32,7 @@ export function StatCard({ label, value, icon: Icon, isLoading }: StatCardProps)
         <Icon className="size-4 text-primary" />
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <Skeleton className="h-8 w-16" />
-        ) : (
-          <span className="text-3xl font-semibold">{value}</span>
-        )}
+        <span className="text-3xl font-semibold">{value}</span>
       </CardContent>
     </Card>
   );
