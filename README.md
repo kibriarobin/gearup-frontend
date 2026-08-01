@@ -6,8 +6,9 @@ A responsive Next.js frontend for a sports and outdoor equipment rental platform
 > This is the frontend-only client for the [GearUp backend](https://github.com/kibriarobin/gearup-server) — a separate Node.js/Express/Prisma REST API.
 
 **Live Frontend:** https://gearup-frontend-amber.vercel.app
-**Frontend Repo:** https://github.com/kibriarobin/gearup-frontend
+
 **Live Backend API:** https://gearup-server-mocha.vercel.app
+
 **Backend Repo:** https://github.com/kibriarobin/gearup-server
 
 ---
