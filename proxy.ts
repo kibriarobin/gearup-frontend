@@ -12,6 +12,8 @@ const PUBLIC_ROUTES = [
   "/gear",
   "/login",
   "/register",
+  "/categories",
+  "/contact",
   "/payment/success",
   "/payment/cancel",
 ];
