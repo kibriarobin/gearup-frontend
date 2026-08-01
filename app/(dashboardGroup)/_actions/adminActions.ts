@@ -30,7 +30,7 @@ export const getAllUsers = async (params: {
     `${process.env.BACKEND_API_URL}/api/admin/users?${query.toString()}`,
     {
       headers,
-      cache: "force-cache",
+      cache: "no-store",
     },
   );
 
@@ -75,7 +75,7 @@ export const getAllGearAdmin = async (): Promise<{
 
   const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/gears`, {
     headers,
-    cache: "force-cache",
+    cache: "no-store",
   });
 
   const result = await res.json();
@@ -98,7 +98,7 @@ export const getAllRentalsAdmin = async (): Promise<{
 
   const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/orders`, {
     headers,
-    cache: "force-cache",
+    cache: "no-store",
   });
 
   const result = await res.json();

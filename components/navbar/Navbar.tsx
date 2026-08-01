@@ -49,7 +49,7 @@ export function Navbar({ user }: NavbarProps) {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-    const profile = user.success ? user.data.profile : null;
+  const profile = user.success ? user.data.profile : null;
 
   const handleUserMenuAction = async (action: string) => {
     if (!profile) return;
@@ -80,7 +80,6 @@ export function Navbar({ user }: NavbarProps) {
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4">
-        
         <Link href="/" className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-md bg-primary">
             <Compass className="size-5 text-primary-foreground" />
@@ -90,7 +89,6 @@ export function Navbar({ user }: NavbarProps) {
           </span>
         </Link>
 
-        
         <nav className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) => (
             <Button key={item.href} variant="ghost" size="sm" asChild>
@@ -99,9 +97,9 @@ export function Navbar({ user }: NavbarProps) {
           ))}
         </nav>
 
-      
+        {/* Desktop: user dropdown / login */}
         <div className="hidden lg:flex">
-          {user?.success ? (
+          {profile ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -111,10 +109,10 @@ export function Navbar({ user }: NavbarProps) {
                 >
                   <Avatar className="size-10 cursor-pointer">
                     <AvatarImage
-                      src={profile?.profile?.profilePhoto ?? undefined}
-                      alt={profile?.name}
+                      src={profile.profile?.profilePhoto ?? undefined}
+                      alt={profile.name}
                     />
-                    <AvatarFallback>{profile?.name?.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -123,10 +121,10 @@ export function Navbar({ user }: NavbarProps) {
                   <DropdownMenuLabel>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-foreground">
-                        {profile?.name}
+                        {profile.name}
                       </span>
                       <span className="text-xs font-normal text-muted-foreground">
-                        {profile?.email}
+                        {profile.email}
                       </span>
                     </div>
                   </DropdownMenuLabel>
@@ -164,96 +162,101 @@ export function Navbar({ user }: NavbarProps) {
           )}
         </div>
 
-        
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Open menu"
-              className="lg:hidden"
+        {/* Mobile: login button (logged-out only) + hamburger */}
+        <div className="flex items-center gap-2 lg:hidden">
+          {!profile && (
+            <Link href="/login">
+              <Button size="sm" className="cursor-pointer">
+                Login
+              </Button>
+            </Link>
+          )}
+
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Open menu">
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="flex w-[85%] flex-col sm:max-w-sm"
             >
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="flex w-[85%] flex-col sm:max-w-sm"
-          >
-            <SheetHeader>
-              <SheetTitle className="flex items-center gap-2 text-left">
-                <span className="flex size-7 items-center justify-center rounded-md bg-primary">
-                  <Compass className="size-4 text-primary-foreground" />
-                </span>
-                Gear<span className="text-primary">Up</span>
-              </SheetTitle>
-            </SheetHeader>
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2 text-left">
+                  <span className="flex size-7 items-center justify-center rounded-md bg-primary">
+                    <Compass className="size-4 text-primary-foreground" />
+                  </span>
+                  Gear<span className="text-primary">Up</span>
+                </SheetTitle>
+              </SheetHeader>
 
-            <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-md px-2 py-2.5 text-sm font-medium hover:bg-accent"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-md px-2 py-2.5 text-sm font-medium hover:bg-accent"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
 
-              <DropdownMenuSeparator className="my-3" />
+                {profile && (
+                  <>
+                    <DropdownMenuSeparator className="my-3" />
 
-              {user ? (
-                <>
-                  <div className="mb-2 flex items-center gap-3 px-2">
-                    <Avatar className="size-9">
-                      <AvatarImage
-                        src={profile?.profile.profilePhoto ?? undefined}
-                        alt={profile?.name}
-                      />
-                      <AvatarFallback>{profile?.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{profile?.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {profile?.email}
-                      </span>
+                    <div className="mb-2 flex items-center gap-3 px-2">
+                      <Avatar className="size-9">
+                        <AvatarImage
+                          src={profile.profile?.profilePhoto ?? undefined}
+                          alt={profile.name}
+                        />
+                        <AvatarFallback>
+                          {profile.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">
+                          {profile.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {profile.email}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {userMenuItems.map((item) => (
+                    {userMenuItems.map((item) => (
+                      <button
+                        key={item.action}
+                        onClick={() => {
+                          handleUserMenuAction(item.action);
+                          setMobileOpen(false);
+                        }}
+                        className="flex items-center gap-2 rounded-md px-2 py-2.5 text-left text-sm font-medium hover:bg-accent"
+                      >
+                        <item.icon className="size-4" />
+                        {item.label}
+                      </button>
+                    ))}
+
                     <button
-                      key={item.action}
                       onClick={() => {
-                        handleUserMenuAction(item.action);
+                        handleUserMenuAction("logout");
                         setMobileOpen(false);
                       }}
-                      className="flex items-center gap-2 rounded-md px-2 py-2.5 text-left text-sm font-medium hover:bg-accent"
+                      className="flex items-center gap-2 rounded-md px-2 py-2.5 text-left text-sm font-medium text-destructive hover:bg-accent"
                     >
-                      <item.icon className="size-4" />
-                      {item.label}
+                      <LogOut className="size-4" />
+                      Log out
                     </button>
-                  ))}
-
-                  <button
-                    onClick={() => {
-                      handleUserMenuAction("logout");
-                      setMobileOpen(false);
-                    }}
-                    className="flex items-center gap-2 rounded-md px-2 py-2.5 text-left text-sm font-medium text-destructive hover:bg-accent"
-                  >
-                    <LogOut className="size-4" />
-                    Log out
-                  </button>
-                </>
-              ) : (
-                <Link href="/login" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full cursor-pointer">Login</Button>
-                </Link>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+                  </>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
